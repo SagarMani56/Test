@@ -32,5 +32,17 @@ def test_stock_cannot_go_negative():
     assert client.put("/items/A1/stock", params={"delta": -2}).status_code == 422
 
 
+def test_update_stock_via_json_body():
+    client.post("/items", json={"sku": "A1", "name": "Mug", "quantity": 5})
+    r = client.put("/items/A1/stock", json={"delta": 3})
+    assert r.status_code == 200
+    assert r.json()["quantity"] == 8
+
+
+def test_blank_sku_is_rejected():
+    r = client.post("/items", json={"sku": "   ", "name": "Mug", "quantity": 5})
+    assert r.status_code == 422
+
+
 def test_not_found():
     assert client.get("/items/nope").status_code == 404
