@@ -1,0 +1,50 @@
+# Reusable Terraform pipeline: fmt -> validate -> checkov -> (optional) LocalStack apply
+name: reusable-terraform
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        type: string
+        required: true
+      terraform-version:
+        type: string
+        default: "1.9.5"
+      localstack-apply:
+        description: "Apply against LocalStack to prove the module works end-to-end"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+      - name: fmt
+        run: terraform fmt -check -recursive -diff
+        working-directory: ${{ inputs.working-directory }}
+      - name: init + validate
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ inputs.working-directory }}
+          framework: terraform
+          config_file: policies/checkov.yaml
+      - name: Start LocalStack
+        if: ${{ inputs.localstack-apply }}
+        run: docker compose -f infrastructure/local/docker-compose.yml up -d --wait
+      - name: Apply to LocalStack
+        if: ${{ inputs.localstack-apply }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          terraform apply -auto-approve -input=false
+          terraform output
+          terraform destroy -auto-approve -input=false

@@ -1,0 +1,45 @@
+# Proves the platform itself is healthy AND reusable by a 2nd team with minimal customization.
+name: platform-self-test
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yamllint
+      - run: yamllint -c policies/yamllint.yaml .github templates infrastructure
+      - run: sudo apt-get install -y shellcheck && shellcheck scripts/*.sh
+  modules:
+    strategy:
+      matrix:
+        module: [network, dynamodb-table, s3-bucket, ecr-repository, ecs-service, app-platform]
+    uses: ./.github/workflows/reusable-terraform.yml
+    with:
+      working-directory: infrastructure/modules/${{ matrix.module }}
+  second-team-onboarding:
+    name: Team B onboarding (scaffold -> test -> build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scaffold a brand-new service from the template
+        run: scripts/new-service.sh orders-service commerce /tmp/orders-service
+      - name: Its generated tests pass out of the box
+        working-directory: /tmp/orders-service/app
+        run: |
+          pip install -r requirements-dev.txt
+          pytest
+      - name: Its image builds
+        run: docker build -t orders-service /tmp/orders-service/app
+  infra-team-b:
+    uses: ./.github/workflows/reusable-terraform.yml
+    with:
+      working-directory: infrastructure/examples/team-b-orders
+      localstack-apply: true

@@ -1,0 +1,6 @@
+title = "Acme platform gitleaks config"
+[extend]
+useDefault = true
+[allowlist]
+description = "LocalStack dummy creds"
+regexes = ['''access_key\s*=.*"test"''']

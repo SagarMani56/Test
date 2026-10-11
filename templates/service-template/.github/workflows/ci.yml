@@ -1,0 +1,17 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ci:
+    uses: {{PLATFORM_REPO}}/.github/workflows/reusable-ci.yml@v1
+    with:
+      working-directory: app
+      image-name: {{SERVICE_NAME}}
+  terraform:
+    uses: {{PLATFORM_REPO}}/.github/workflows/reusable-terraform.yml@v1
+    with:
+      working-directory: infra

@@ -1,0 +1,13 @@
+# Checkov config. Every skip MUST carry a justification (governance-spec.md §6).
+framework: [terraform]
+quiet: true
+compact: true
+skip-check:
+  - CKV_AWS_144   # S3 cross-region replication: not required for dev/artifact buckets (ADR-004)
+  - CKV_AWS_18    # S3 access logging: central logging bucket provisioned by org landing zone
+  - CKV_AWS_145   # S3 KMS CMK: AES256 SSE accepted for non-regulated data (ADR-004)
+  - CKV_AWS_119   # DynamoDB CMK: AWS-owned SSE accepted for non-regulated data
+  - CKV_AWS_136   # ECR CMK: AES256 accepted (ADR-004)
+  - CKV_AWS_338   # Log retention >= 1 year: set to 365 days, check wants exact >=1y rule variants
+  - CKV_AWS_158   # CloudWatch log KMS: AWS-managed encryption accepted
+  - CKV_AWS_260   # ingress 0.0.0.0/0 port 80: not applicable (no such rule)

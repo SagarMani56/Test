@@ -1,0 +1,4 @@
+* @acme/platform-team
+/.github/workflows/ @acme/platform-team @acme/security-team
+/infrastructure/modules/ @acme/platform-team
+/policies/ @acme/security-team
