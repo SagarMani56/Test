@@ -4,13 +4,14 @@ services:
     ports: ["4566:4566"]
     environment:
       SERVICES: s3,dynamodb,ec2,iam,logs,sts
-      # Start every service at boot (DynamoDB Local is installed at startup) instead of on
-      # first request - a slow first CreateTable makes the Terraform provider retry and then
-      # fail with "ResourceInUseException: Table already exists".
+      # Start services at boot instead of on first request. A slow first DynamoDB CreateTable
+      # makes the Terraform provider retry and fail with "Table already exists".
       EAGER_SERVICE_LOADING: "1"
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health | grep -Eq '\"dynamodb\": ?\"running\"' && curl -sf http://localhost:4566/_localstack/health | grep -Eq '\"s3\": ?\"running\"'"]
+      # Keep this check simple: "is LocalStack answering?". Per-service readiness is checked by
+      # scripts/wait-localstack.sh, which prints what it sees if something is wrong.
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 5s
       timeout: 5s
-      retries: 60
-      start_period: 20s
+      retries: 40
+      start_period: 15s
