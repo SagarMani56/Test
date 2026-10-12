@@ -1,13 +1,14 @@
-# Checkov config. Every skip MUST carry a justification (governance-spec.md §6).
+# Checkov config. Every skip MUST carry a justification, owner and review date
+# (governance-spec.md section 6). Removing a skip = the check becomes blocking again.
+# Owner of all entries below: platform-team. Review: 2027-04-01. Rationale: ADR-004.
 framework: [terraform]
 quiet: true
 compact: true
 skip-check:
-  - CKV_AWS_144   # S3 cross-region replication: not required for dev/artifact buckets (ADR-004)
-  - CKV_AWS_18    # S3 access logging: central logging bucket provisioned by org landing zone
-  - CKV_AWS_145   # S3 KMS CMK: AES256 SSE accepted for non-regulated data (ADR-004)
-  - CKV_AWS_119   # DynamoDB CMK: AWS-owned SSE accepted for non-regulated data
-  - CKV_AWS_136   # ECR CMK: AES256 accepted (ADR-004)
-  - CKV_AWS_338   # Log retention >= 1 year: set to 365 days, check wants exact >=1y rule variants
-  - CKV_AWS_158   # CloudWatch log KMS: AWS-managed encryption accepted
-  - CKV_AWS_260   # ingress 0.0.0.0/0 port 80: not applicable (no such rule)
+  - CKV_AWS_144   # S3 cross-region replication: not needed for artifact buckets (rebuildable from CI)
+  - CKV_AWS_18    # S3 access logging: central log bucket is owned by the org landing zone
+  - CKV_AWS_145   # S3 KMS CMK: AES256 SSE accepted for non-regulated data
+  - CKV2_AWS_62   # S3 event notifications: artifact buckets have no event consumers; add per-app if needed
+  - CKV_AWS_119   # DynamoDB CMK: AWS-owned encryption accepted for non-regulated data
+  - CKV_AWS_136   # ECR CMK: AES256 accepted for non-regulated images
+  - CKV_AWS_158   # CloudWatch log group CMK: AWS-managed encryption accepted
