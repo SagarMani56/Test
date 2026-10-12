@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wait until LocalStack's DynamoDB and S3 are usable, then warm them up so the first
+# Wait until LocalStack's DynamoDB, S3 and KMS are usable, then warm them up so the first
 # Terraform call is not slow (slow first calls cause provider retries / timeouts).
 # Usage: bash scripts/wait-localstack.sh [endpoint] [timeout-seconds]
 set -euo pipefail
@@ -16,7 +16,7 @@ ready() { grep -Eq "\"$1\": ?\"(running|available)\"" <<<"$health"; }
 echo "Waiting for LocalStack at ${ENDPOINT} (max ${TIMEOUT}s)..."
 while true; do
   health="$(curl -sf "${ENDPOINT}/_localstack/health" 2>/dev/null || true)"
-  if [[ -n "$health" ]] && ready dynamodb && ready s3; then
+  if [[ -n "$health" ]] && ready dynamodb && ready s3 && ready kms; then
     break
   fi
   if ((SECONDS >= DEADLINE)); then

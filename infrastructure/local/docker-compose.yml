@@ -3,7 +3,8 @@ services:
     image: localstack/localstack:3.8
     ports: ["4566:4566"]
     environment:
-      SERVICES: s3,dynamodb,ec2,iam,logs,sts
+      # kms is required: DynamoDB server-side encryption (KMS) calls it during CreateTable.
+      SERVICES: s3,dynamodb,kms,ec2,iam,logs,sts
       # Start services at boot instead of on first request. A slow first DynamoDB CreateTable
       # makes the Terraform provider retry and fail with "Table already exists".
       EAGER_SERVICE_LOADING: "1"

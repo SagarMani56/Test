@@ -21,6 +21,7 @@ provider "aws" {
   skip_metadata_api_check     = var.use_localstack
   skip_requesting_account_id  = var.use_localstack
   s3_use_path_style           = var.use_localstack
+  max_retries                 = var.use_localstack ? 1 : null # LocalStack: surface the real error, no duplicate CreateTable
 
   dynamic "endpoints" {
     for_each = var.use_localstack ? [1] : []
@@ -29,6 +30,7 @@ provider "aws" {
       s3       = "http://localhost:4566"
       dynamodb = "http://localhost:4566"
       iam      = "http://localhost:4566"
+      kms      = "http://localhost:4566"
       logs     = "http://localhost:4566"
       sts      = "http://localhost:4566"
     }

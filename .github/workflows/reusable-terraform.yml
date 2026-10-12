@@ -52,9 +52,11 @@ jobs:
           terraform apply -auto-approve -input=false
           terraform output
           terraform destroy -auto-approve -input=false
-      - name: LocalStack logs (on failure)
+      - name: LocalStack diagnostics (on failure)
         if: ${{ failure() && inputs.localstack-apply }}
-        run: docker compose -f infrastructure/local/docker-compose.yml logs --tail=200 localstack
+        run: |
+          curl -s http://localhost:4566/_localstack/health || true
+          docker compose -f infrastructure/local/docker-compose.yml logs --tail=300 localstack
       - name: Stop LocalStack
         if: ${{ always() && inputs.localstack-apply }}
         run: docker compose -f infrastructure/local/docker-compose.yml down -v
