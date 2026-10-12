@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EX="${1:-ims}"
 docker compose -f "$ROOT/infrastructure/local/docker-compose.yml" up -d --wait
+bash "$ROOT/scripts/wait-localstack.sh"
 cd "$ROOT/infrastructure/examples/$EX"
 terraform init -input=false
 terraform apply -auto-approve -input=false

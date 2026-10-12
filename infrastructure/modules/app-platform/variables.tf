@@ -39,3 +39,8 @@ variable "image_tag" {
   type    = string
   default = "latest"
 }
+variable "enable_s3_lifecycle" {
+  description = "S3 lifecycle rules on the artifact bucket. Keep true on real AWS; false only for LocalStack."
+  type        = bool
+  default     = true
+}

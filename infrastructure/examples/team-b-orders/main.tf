@@ -43,6 +43,9 @@ module "platform" {
   environment      = "dev"
   enable_flow_logs = false # LocalStack community: skip flow logs
   enable_compute   = false # ECR/ECS are validated + planned on real AWS only
+
+  # LocalStack: the provider's lifecycle-rule wait can time out. Real AWS keeps the default (true).
+  enable_s3_lifecycle = !var.use_localstack
 }
 
 output "table_name" {

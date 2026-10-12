@@ -41,10 +41,20 @@ jobs:
       - name: Start LocalStack
         if: ${{ inputs.localstack-apply }}
         run: docker compose -f infrastructure/local/docker-compose.yml up -d --wait
+      - name: Wait for LocalStack + warm up
+        if: ${{ inputs.localstack-apply }}
+        run: bash scripts/wait-localstack.sh
       - name: Apply to LocalStack
         if: ${{ inputs.localstack-apply }}
         working-directory: ${{ inputs.working-directory }}
         run: |
+          terraform init -input=false
           terraform apply -auto-approve -input=false
           terraform output
           terraform destroy -auto-approve -input=false
+      - name: LocalStack logs (on failure)
+        if: ${{ failure() && inputs.localstack-apply }}
+        run: docker compose -f infrastructure/local/docker-compose.yml logs --tail=200 localstack
+      - name: Stop LocalStack
+        if: ${{ always() && inputs.localstack-apply }}
+        run: docker compose -f infrastructure/local/docker-compose.yml down -v

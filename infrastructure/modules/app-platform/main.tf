@@ -25,9 +25,10 @@ module "table" {
 }
 
 module "artifacts" {
-  source      = "../s3-bucket"
-  bucket_name = "${local.prefix}-artifacts"
-  tags        = local.tags
+  source           = "../s3-bucket"
+  bucket_name      = "${local.prefix}-artifacts"
+  enable_lifecycle = var.enable_s3_lifecycle
+  tags             = local.tags
 }
 
 module "registry" {
