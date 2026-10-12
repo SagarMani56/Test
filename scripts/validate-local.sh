@@ -23,7 +23,7 @@ have trivy    && trivy fs --severity HIGH,CRITICAL --exit-code 1 . || echo "triv
 
 echo "== 4. Template smoke test =="
 tmp="$(mktemp -d)"
-scripts/new-service.sh smoke-service qa "$tmp/smoke-service" >/dev/null
+bash scripts/new-service.sh smoke-service qa "$tmp/smoke-service" >/dev/null
 ( cd "$tmp/smoke-service/app" && pip install -q -r requirements-dev.txt && pytest -q )
 rm -rf "$tmp"
 echo "ALL CHECKS PASSED"

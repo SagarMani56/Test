@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Scaffold a brand-new service from the template
-        run: scripts/new-service.sh orders-service commerce /tmp/orders-service
+        run: bash scripts/new-service.sh orders-service commerce /tmp/orders-service
       - name: Its generated tests pass out of the box
         working-directory: /tmp/orders-service/app
         run: |

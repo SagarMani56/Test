@@ -29,8 +29,16 @@ while IFS= read -r -d '' f; do
   cat "$tmp" > "$f"; rm -f "$tmp"
 done < <(find "$TARGET" -type f -not -name '*.pyc' -print0)
 
-( cd "$TARGET" && git init -q && git add -A && git commit -qm "chore: scaffold ${SERVICE} from golden-path template" \
-    --author="platform <platform@acme.local>" 2>/dev/null || true )
+# Initialise git history (non-fatal: git may be missing or user.name/email unset)
+if command -v git >/dev/null 2>&1; then
+  (
+    cd "$TARGET"
+    git init -q
+    git add -A
+    git -c user.name="platform" -c user.email="platform@acme.local" \
+      commit -qm "chore: scaffold ${SERVICE} from golden-path template"
+  ) || echo "WARN: git init/commit skipped; run it manually in $TARGET" >&2
+fi
 
 echo "Created $TARGET"
 echo "Next: cd $TARGET/app && pip install -r requirements-dev.txt && pytest"
